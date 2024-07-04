@@ -1,6 +1,7 @@
 package com.technical.assessment.controllers;
 
-import com.technical.assessment.client.CountryInfoClient;
+import com.technical.assessment.response.CountryInfoResponse;
+import com.technical.assessment.services.CountryInfoService;
 import com.technical.assessment.dto.CountryDTO;
 import com.technical.assessment.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,26 +10,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/country")
 public class CountryController {
 
     @Autowired
-    private CountryInfoClient countryInfoClient;
+    private CountryInfoService countryInfoService;
 
-    @PostMapping("/country")
-    public CountryDTO processCountry(@RequestBody CountryDTO countryDTO) {
-        String sentenceCaseName = StringUtil.toSentenceCase(countryDTO.getName());
-        countryDTO.setName(sentenceCaseName);
-
-        // Call the SOAP service to get the ISO code
-        String isoCode = countryInfoClient.getCountryISOCode(sentenceCaseName);
-        countryDTO.setIsoCode(isoCode);
-
-        return countryDTO;
+    @PostMapping("/isoCode")
+    public CountryInfoResponse getCountryIsoCode(@RequestBody CountryDTO countryDTO) {
+        // Convert country name to sentence case
+        String countryName = StringUtil.toSentenceCase(countryDTO.getName());
+        // Get ISO code
+        String isoCode = countryInfoService.getCountryIsoCode(countryName);
+        // Return response
+        CountryInfoResponse response = new CountryInfoResponse();
+        response.setIsoCode(isoCode);
+        return response;
     }
-
 
 }
