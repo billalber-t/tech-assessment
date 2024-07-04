@@ -3,6 +3,8 @@ package com.technical.assessment.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class FullCountryInfoDTO {
@@ -13,4 +15,5 @@ public class FullCountryInfoDTO {
     private String continentCode;
     private String currencyIsoCode;
     private String countryFlag;
+    private List<LanguageDTO> languages;
 }
