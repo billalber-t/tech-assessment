@@ -1,12 +1,11 @@
-package com.technical.assessment.response;
+package com.technical.assessment.dto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CountryInfoResponse {
-
+public class FullCountryInfoDTO {
     private String isoCode;
     private String name;
     private String capitalCity;

@@ -1,5 +1,6 @@
 package com.technical.assessment.controllers;
 
+import com.technical.assessment.dto.FullCountryInfoDTO;
 import com.technical.assessment.response.CountryInfoResponse;
 import com.technical.assessment.services.CountryInfoService;
 import com.technical.assessment.dto.CountryDTO;
@@ -28,6 +29,17 @@ public class CountryController {
         CountryInfoResponse response = new CountryInfoResponse();
         response.setIsoCode(isoCode);
         return response;
+    }
+
+    @PostMapping("/fullInfo")
+    public FullCountryInfoDTO getFullCountryInfo(@RequestBody CountryDTO countryDTO) {
+        // Convert country name to sentence case
+        String countryName = StringUtil.toSentenceCase(countryDTO.getName());
+        // Get ISO code
+        String isoCode = countryInfoService.getCountryIsoCode(countryName);
+        // Get full country info
+        return countryInfoService.getFullCountryInfo(isoCode);
+
     }
 
 }
