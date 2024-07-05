@@ -1,11 +1,11 @@
 package com.technical.assessment.services;
 
-import com.technical.assessment.dto.FullCountryInfoDTO;
 import com.technical.assessment.dto.LanguageDTO;
 import com.technical.assessment.repositories.CountryInfoRepository;
 import com.technical.assessment.repositories.LanguageRepository;
 import com.technical.assessment.models.CountryInfo;
 import com.technical.assessment.models.Language;
+import com.technical.assessment.dto.CountryInfoDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -29,6 +30,7 @@ public class CountryInfoService {
 
     @Autowired
     private LanguageRepository languageRepository;
+
 
     public String getCountryIsoCode(String countryName) {
         String apiUrl = "http://www.oorsprong.org/websamples.countryinfo/CountryInfoService.wso";
@@ -93,7 +95,7 @@ public class CountryInfoService {
     }
 
 
-    public FullCountryInfoDTO getFullCountryInfo(String isoCode) {
+    public CountryInfoDTO getFullCountryInfo(String isoCode) {
         String apiUrl = "http://www.oorsprong.org/websamples.countryinfo/CountryInfoService.wso";
         String requestXml = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:web=\"http://www.oorsprong.org/websamples.countryinfo\">\n" +
                 "   <soap:Header/>\n" +
@@ -140,8 +142,8 @@ public class CountryInfoService {
         }
     }
 
-    private FullCountryInfoDTO extractFullCountryInfo(String responseXml) {
-        FullCountryInfoDTO countryInfo = new FullCountryInfoDTO();
+    private CountryInfoDTO extractFullCountryInfo(String responseXml) {
+        CountryInfoDTO countryInfo = new CountryInfoDTO();
 
         String patternString = "<m:FullCountryInfoResult>(.*?)</m:FullCountryInfoResult>";
         Pattern pattern = Pattern.compile(patternString, Pattern.DOTALL);
@@ -158,24 +160,36 @@ public class CountryInfoService {
             countryInfo.setCurrencyIsoCode(extractTagValue(countryInfoXml, "m:sCurrencyISOCode"));
             countryInfo.setCountryFlag(extractTagValue(countryInfoXml, "m:sCountryFlag"));
 
-            // Handle languages (if needed)
+            // Handle languages
+            String languagesPatternString = "<m:tLanguage>(.*?)</m:tLanguage>";
+            Pattern languagesPattern = Pattern.compile(languagesPatternString, Pattern.DOTALL);
+            Matcher languagesMatcher = languagesPattern.matcher(countryInfoXml);
+
+            while (languagesMatcher.find()) {
+                String languageXml = languagesMatcher.group(1);
+
+                LanguageDTO languageDTO = new LanguageDTO();
+                languageDTO.setIsoCode(extractTagValue(languageXml, "m:sISOCode"));
+                languageDTO.setName(extractTagValue(languageXml, "m:sName"));
+                countryInfo.getLanguages().add(languageDTO);
+            }
         }
 
         return countryInfo;
     }
 
-    private void saveCountryInfo(FullCountryInfoDTO fullCountryInfoDTO) {
+    public void saveCountryInfo(CountryInfoDTO countryInfoDTO) {
         CountryInfo countryInfo = new CountryInfo();
-        countryInfo.setIsoCode(fullCountryInfoDTO.getIsoCode());
-        countryInfo.setName(fullCountryInfoDTO.getName());
-        countryInfo.setCapitalCity(fullCountryInfoDTO.getCapitalCity());
-        countryInfo.setPhoneCode(fullCountryInfoDTO.getPhoneCode());
-        countryInfo.setContinentCode(fullCountryInfoDTO.getContinentCode());
-        countryInfo.setCurrencyIsoCode(fullCountryInfoDTO.getCurrencyIsoCode());
-        countryInfo.setCountryFlag(fullCountryInfoDTO.getCountryFlag());
+        countryInfo.setIsoCode(countryInfoDTO.getIsoCode());
+        countryInfo.setName(countryInfoDTO.getName());
+        countryInfo.setCapitalCity(countryInfoDTO.getCapitalCity());
+        countryInfo.setPhoneCode(countryInfoDTO.getPhoneCode());
+        countryInfo.setContinentCode(countryInfoDTO.getContinentCode());
+        countryInfo.setCurrencyIsoCode(countryInfoDTO.getCurrencyIsoCode());
+        countryInfo.setCountryFlag(countryInfoDTO.getCountryFlag());
 
         List<Language> languages = new ArrayList<>();
-        for (LanguageDTO languageDTO : fullCountryInfoDTO.getLanguages()) {
+        for (LanguageDTO languageDTO : countryInfoDTO.getLanguages()) {
             Language language = new Language();
             language.setIsoCode(languageDTO.getIsoCode());
             language.setName(languageDTO.getName());
@@ -200,4 +214,5 @@ public class CountryInfoService {
             return null;
         }
     }
+
 }
