@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -160,18 +159,24 @@ public class CountryInfoService {
             countryInfo.setCurrencyIsoCode(extractTagValue(countryInfoXml, "m:sCurrencyISOCode"));
             countryInfo.setCountryFlag(extractTagValue(countryInfoXml, "m:sCountryFlag"));
 
-            // Handle languages
-            String languagesPatternString = "<m:tLanguage>(.*?)</m:tLanguage>";
+            // Handles languages
+            String languagesPatternString = "<m:Languages>(.*?)</m:Languages>";
             Pattern languagesPattern = Pattern.compile(languagesPatternString, Pattern.DOTALL);
             Matcher languagesMatcher = languagesPattern.matcher(countryInfoXml);
 
-            while (languagesMatcher.find()) {
-                String languageXml = languagesMatcher.group(1);
+            if (languagesMatcher.find()) {
+                String languagesXml = languagesMatcher.group(1);
+                String languagePatternString = "<m:tLanguage>(.*?)</m:tLanguage>";
+                Pattern languagePattern = Pattern.compile(languagePatternString, Pattern.DOTALL);
+                Matcher languageMatcher = languagePattern.matcher(languagesXml);
 
-                LanguageDTO languageDTO = new LanguageDTO();
-                languageDTO.setIsoCode(extractTagValue(languageXml, "m:sISOCode"));
-                languageDTO.setName(extractTagValue(languageXml, "m:sName"));
-                countryInfo.getLanguages().add(languageDTO);
+                while (languageMatcher.find()) {
+                    String languageXml = languageMatcher.group(1);
+                    LanguageDTO languageDTO = new LanguageDTO();
+                    languageDTO.setIsoCode(extractTagValue(languageXml, "m:sISOCode"));
+                    languageDTO.setName(extractTagValue(languageXml, "m:sName"));
+                    countryInfo.getLanguages().add(languageDTO);
+                }
             }
         }
 

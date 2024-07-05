@@ -28,6 +28,7 @@ public class CountryController {
     @Autowired
     private CountryInfoCRUDService countryInfoCRUDService;
 
+    // Get the sentence case of a country
     @PostMapping("/isoCode")
     public CountryInfoResponse getCountryIsoCode(@RequestBody CountryDTO countryDTO) {
         // Convert country name to sentence case
@@ -40,6 +41,7 @@ public class CountryController {
         return response;
     }
 
+    // Get the full country info based on posted country name
     @PostMapping("/fullInfo")
     public CountryInfoDTO getFullCountryInfo(@RequestBody CountryDTO countryDTO) {
         // Convert country name to sentence case
@@ -99,16 +101,6 @@ public class CountryController {
     }
 
     // Delete country
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> deleteCountry(@PathVariable Long id) {
-//        boolean deleted = countryInfoCRUDService.deleteCountry(id);
-//        if (deleted) {
-//            return ResponseEntity.noContent().build();
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCountry(@PathVariable Long id) {
         log.info("Deleting country with id: {}", id);

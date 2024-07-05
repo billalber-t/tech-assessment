@@ -36,13 +36,6 @@ public class CountryInfoCRUDServiceImpl implements CountryInfoCRUDService {
         return convertToDto(country);
     }
 
-//    @Override
-//    public CountryInfoDTO createCountry(@Valid CountryInfoDTO countryInfoDTO) {
-//        CountryInfo countryInfo = convertToEntity(countryInfoDTO);
-//        CountryInfo savedCountry = countryInfoRepository.save(countryInfo);
-//        return convertToDto(savedCountry);
-//    }
-
     @Override
     public CountryInfoDTO updateCountry(Long id, @Valid CountryInfoDTO countryInfoDTO) {
         CountryInfo existingCountry = countryInfoRepository.findById(id)
